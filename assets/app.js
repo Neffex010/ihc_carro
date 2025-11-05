@@ -1,5 +1,5 @@
 // === Config ===
-const API_BASE = "https://14bbc250bc1d472b6c3db7535f483c4a.serveo.net";
+const API_BASE = "https://14bbc250bc1d472b6c3db7535f483c4a.serveo.net/api";
 
 // Catálogo local (para mostrar estatus inmediatamente)
 const CATALOGO = {
@@ -922,4 +922,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   preloadApiKey();
 
 });
+
 
