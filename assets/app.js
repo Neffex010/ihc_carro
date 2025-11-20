@@ -1,5 +1,5 @@
 // === Config ===
-const API_BASE = "https://100.28.170.154:5500/api";
+const API_BASE = "http://100.28.170.154:5500/api";
 
 // Catálogo local (para mostrar estatus inmediatamente)
 const CATALOGO = {
@@ -922,3 +922,4 @@ window.addEventListener("DOMContentLoaded", async () => {
   preloadApiKey();
 
 });
+
