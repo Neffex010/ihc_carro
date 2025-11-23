@@ -41,6 +41,7 @@ const voiceText = document.getElementById('voice-text');
 const voiceIndicator = document.getElementById('voice-indicator');
 
 // === Función para obtener la API key desde MockAPI ===
+
 async function obtenerApiKey() {
   try {
     const response = await fetch(MOCKAPI_KEY_URL);
@@ -49,13 +50,22 @@ async function obtenerApiKey() {
     }
     const data = await response.json();
     
-    // Asumiendo que tu MockAPI devuelve un array y necesitas el primer item
-    // o ajusta según la estructura de tu respuesta
+    console.log("🔍 Estructura completa recibida:", data); // Para debug
+    
+    // ✅ CORREGIDO: Buscar la propiedad correcta "api_key"
     if (Array.isArray(data) && data.length > 0) {
-      return data[0].key || data[0].apiKey || data[0].value;
-    } else if (data.key || data.apiKey || data.value) {
-      return data.key || data.apiKey || data.value;
+      const apiKey = data[0].api_key;
+      if (!apiKey) {
+        throw new Error("No se encontró la propiedad 'api_key' en el array");
+      }
+      console.log("✅ API key obtenida correctamente del array");
+      return apiKey;
+    } else if (data.api_key) {
+      console.log("✅ API key obtenida correctamente del objeto");
+      return data.api_key;
     } else {
+      // Debug adicional para ver qué propiedades tiene el objeto
+      console.warn("❌ Propiedades disponibles:", Object.keys(data));
       throw new Error("Estructura de API key no reconocida");
     }
   } catch (error) {
@@ -64,13 +74,17 @@ async function obtenerApiKey() {
   }
 }
 
-// === Función para pre-cargar la API key al iniciar (opcional) ===
+
+// === Función para pre-cargar la API key al iniciar ===
 async function preloadApiKey() {
   try {
     OPENAI_API_KEY = await obtenerApiKey();
-    console.log("API key cargada exitosamente");
+    console.log("✅ API key cargada exitosamente al iniciar");
+    return OPENAI_API_KEY;
   } catch (error) {
-    console.warn("No se pudo pre-cargar la API key, se intentará cuando sea necesario");
+    console.warn("⚠️ No se pudo pre-cargar la API key, se intentará cuando sea necesario:", error.message);
+    OPENAI_API_KEY = ""; // Asegurar que esté vacía
+    return null;
   }
 }
 
@@ -331,7 +345,7 @@ INSTRUCCIONES:
 5. Responde EXCLUSIVAMENTE con un número del 1 al 11 o "null"
 
 CATÁLOGO:
-1 "Adelante" → adelante, avanza, hacia adelante, ve adelante, forward, avance, anda adelante
+1 "Adelante" → adelante, avanza, hacia adelante, ve adelante, forward, avance, anda adelante, avanzar,enfrente
 2 "Atrás" → atrás, retrocede, hacia atrás, ve atrás, back, retroceda, reversa, marcha atrás
 3 "Detener" → detente, para, alto, stop, párate, pare, deténgase, alto ahí, para ya
 4 "Vuelta adelante derecha" → vuelta derecha adelante, giro adelante derecha, curva derecha adelante, vuelta a la derecha adelante
@@ -455,7 +469,7 @@ function interpretCommandManually(command) {
   const commandPatterns = [
     // Movimientos básicos (primero los más comunes)
     { patterns: ['detente', 'detener', 'para', 'alto', 'stop', 'parate', 'frenar', 'frena', 'quieto', 'pare', 'detengase', 'alto ahi', 'para ya'], id: 3 },
-    { patterns: ['adelante', 'avanza', 'avanzar', 'hacia adelante', 'para adelante', 've adelante', 'forward', 'avance', 'anda adelante'], id: 1 },
+    { patterns: ['adelante', 'avanza', 'avanzar', 'hacia adelante', 'para adelante', 've adelante', 'forward', 'avance', 'anda adelante','enfrente'], id: 1 },
     { patterns: ['atras', 'atrás', 'retrocede', 'retroceder', 'hacia atras', 'para atras', 've atras', 'back', 'reversa', 'retroceda', 'marcha atras'], id: 2 },
     
     // Giro 360° (giros completos) - prioridad alta para evitar confusión con 90°
@@ -920,6 +934,5 @@ window.addEventListener("DOMContentLoaded", async () => {
   startMonitor();
   // Pre-cargar la API key en segundo plano
   preloadApiKey();
-
 });
 
